@@ -1,0 +1,63 @@
+# Install dependencies
+
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y net-tools curl wget vim git build-essential python3 python3-pip ntp ufw htop iftop openssh-server netplan.io isc-dhcp-client
+sudo systemctl enable ntp
+sudo systemctl start ntp
+sudo systemctl enable ssh
+sudo systemctl start ssh
+sudo apt-get clean
+sudo apt-get autoremove -y
+
+# Network Configuration
+
+# Remove the default network configuration
+sudo nano /etc/netplan/50-cloud-init.yaml
+    ## Comment all
+
+# Add the following network configuration
+sudo nano /etc/netplan/01-netcfg.yaml
+    ## Add the following content
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    
+    enp1s0:
+      dhcp4: no
+      addresses: [192.168.122.100/24]
+      routes:
+        - to: default
+          via: 192.168.122.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+    
+    enp7s0:
+      dhcp4: no
+      addresses: [192.168.3.10/24]
+
+# Change the permission of the network configuration file
+sudo chmod 600 /etc/netplan/01-netcfg.yaml
+
+# Apply the network configuration
+sudo netplan apply
+
+# Remove the dhcp default network configuration
+sudo ip addr del 192.168.122.133/24 dev enp1s0
+sudo netplan apply
+
+# Change the hostname
+sudo hostnamectl set-hostname ubuntu-server
+sudo nano /etc/hosts
+    ## Change the following line
+127.0.0.1   localhost
+127.0.1.1   ubuntu-server
+
+# shutdown the server
+sudo apt update
+sudo apt upgrade -y
+sudo apt-get clean
+sudo apt-get autoremove -y
+sudo poweroff

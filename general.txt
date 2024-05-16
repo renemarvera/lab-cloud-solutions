@@ -1,0 +1,67 @@
+Distribución de Máquinas Virtuales e IPs
+
+    * Balanceador-1
+        IP Externa: 192.168.122.50 (salida a Internet)
+        IP Interna: 192.168.3.50 (comunicación interna)
+        hostname: balanceador-1
+        Funciones: Balanceador de carga L7, DNS principal
+
+    * Balanceador-2
+        IP: 192.168.3.51
+        hostname: balanceador-2
+        Funciones: Balanceador de carga L7
+
+    * Backend-1
+        IP: 192.168.122.52
+        hostname: backend-1
+        Funciones: Servidor backend
+
+    * Backend-2
+        IP: 192.168.122.53
+        hostname: backend-2
+        Funciones: Servidor backend
+
+    * Backend-3
+        IP: 192.168.122.54
+        hostname: backend-3
+        Funciones: Servidor backend
+
+    * Redis-1
+        IP: 192.168.3.55
+        hostname: redis-1
+        Funciones: Servidor Redis
+
+    * Redis-2
+        IP: 192.168.3.56
+        hostname: redis-2
+        Funciones: Servidor Redis
+
+    * nodo-db-1
+        IP: 192.168.4.52
+        hostname: nodo-db-1
+        Funciones: Nodo del cluster MariaDB
+
+    * nodo-db-2
+        IP: 192.168.4.53
+        hostname: nodo-db-2
+        Funciones: Nodo del cluster MariaDB
+
+    * nodo-db-3
+        IP: 192.168.4.54
+        hostname: nodo-db-3
+        Funciones: Nodo del cluster MariaDB
+
+    * Ceph-1
+        IP: 192.168.3.52
+        hostname: ceph-1
+        Funciones: Nodo de CephFS
+
+    * Ceph-2
+        IP: 192.168.3.53
+        hostname: ceph-2
+        Funciones: Nodo de CephFS
+
+    * Ceph-3
+        IP: 192.168.3.54
+        hostname: ceph-3
+        Funciones: Nodo de CephFS

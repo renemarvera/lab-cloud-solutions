@@ -1,0 +1,67 @@
+# Network Configuration
+sudo nano /etc/netplan/01-netcfg.yaml
+    ## Add the following content
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+
+    enp1s0:
+      dhcp4: no
+      addresses: [192.168.122.156/24]
+      routes:
+        - to: default
+          via: 192.168.122.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+
+    enp7s0:
+      dhcp4: no
+      addresses: [192.168.3.56/24]
+
+# Apply the network configuration
+sudo netplan apply
+
+# Bring up the network interface
+sudo ip link set enp7s0 up
+
+# Change the hostname
+sudo hostnamectl set-hostname redis-2
+sudo nano /etc/hosts
+
+    ## Change the following line
+127.0.0.1   localhost
+127.0.1.1   redis-2
+
+192.168.122.52  backend-1
+192.168.122.53  backend-2
+192.168.122.54  backend-3
+
+192.168.3.50  balanceador-1
+192.168.3.51  balanceador-2
+192.168.3.55  redis-1
+192.168.3.56  redis-2
+
+
+
+# shutdown the server
+sudo apt update
+sudo apt upgrade -y
+sudo apt-get clean
+sudo apt-get autoremove -y
+sudo poweroff
+
+###### REDIS ######
+
+# Install Redis
+sudo apt install redis-server
+
+# Change the configuration
+sudo nano /etc/redis/redis.conf
+    ## Change the following line
+bind 127.0.0.1 192.168.122.56
+protected-mode yes
+replicaof 192.168.122.55 6379
+
+# Restart the service
+sudo systemctl restart redis-server
