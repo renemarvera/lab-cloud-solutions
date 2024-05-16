@@ -1,0 +1,103 @@
+# Network Configuration
+sudo nano /etc/netplan/01-netcfg.yaml
+    ## Add the following content
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+
+    enp1s0:
+      dhcp4: no
+      addresses: [192.168.122.84/24]
+      routes:
+        - to: default
+          via: 192.168.122.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+
+    enp7s0:
+      dhcp4: no
+      addresses: [192.168.3.84/24]
+
+    enp8s0:
+      dhcp4: no
+      addresses: [192.168.4.54/24]
+
+# Apply the network configuration
+sudo netplan apply
+
+# Bring up the network interface
+sudo ip link set enp7s0 up
+sudo ip link set enp8s0 up
+
+# Change the hostname
+sudo hostnamectl set-hostname maria3
+sudo nano /etc/hosts
+
+    ## Change the following line
+127.0.0.1   localhost
+127.0.1.1   maria3
+
+192.168.122.52  backend-1
+192.168.122.53  backend-2
+192.168.122.54  backend-3
+
+192.168.3.50  balanceador-1
+192.168.3.51  balanceador-2
+
+192.168.3.55  redis-1
+192.168.3.56  redis-2
+
+192.168.4.52  maria1
+192.168.4.53  maria2
+192.168.4.54  maria3
+
+# shutdown the server
+sudo apt update
+sudo apt upgrade -y
+sudo apt-get clean
+sudo apt-get autoremove -y
+sudo poweroff
+
+###### MariaDB ######
+
+# Install MariaDB
+sudo apt update
+sudo apt install mariadb-server -y
+apt install rsync
+
+# configure mariadb
+
+sudo nano /etc/mysql/conf.d/mariadb.cnf
+
+[mysqld]
+query_cache_size=0
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+query_cache_type=0
+bind-address=0.0.0.0
+# Galera Provider Configuration
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+#wsrep_provider_options="gcache.size=32G"
+# Galera Cluster Configuration
+wsrep_cluster_name="ClusterMaria"
+wsrep_cluster_address="gcomm://maria1,maria2,maria3"
+
+# Galera Synchronization Congifuration
+wsrep_sst_method=rsync
+#wsrep_sst_auth=user:pass
+# Galera Node Configuration
+wsrep_node_address="192.168.4.54"
+wsrep_node_name="maria3"
+
+#stop the service
+service mariadb stop
+
+#start the service
+service mariadb start
+
+###### MaxScale ######
+sudo su
+mysql

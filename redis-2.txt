@@ -59,9 +59,10 @@ sudo apt install redis-server
 # Change the configuration
 sudo nano /etc/redis/redis.conf
     ## Change the following line
-bind 127.0.0.1 192.168.122.56
+bind 127.0.0.1 192.168.3.56
+replicaof 192.168.3.55 6379
+masterauth mypass
 protected-mode yes
-replicaof 192.168.122.55 6379
 
 # Restart the service
 sudo systemctl restart redis-server

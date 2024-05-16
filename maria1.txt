@@ -8,7 +8,7 @@ network:
 
     enp1s0:
       dhcp4: no
-      addresses: [192.168.122.84/24]
+      addresses: [192.168.122.82/24]
       routes:
         - to: default
           via: 192.168.122.1
@@ -17,11 +17,11 @@ network:
 
     enp7s0:
       dhcp4: no
-      addresses: [192.168.3.84/24]
+      addresses: [192.168.3.82/24]
 
     enp8s0:
       dhcp4: no
-      addresses: [192.168.4.54/24]
+      addresses: [192.168.4.52/24]
 
 # Apply the network configuration
 sudo netplan apply
@@ -31,12 +31,12 @@ sudo ip link set enp7s0 up
 sudo ip link set enp8s0 up
 
 # Change the hostname
-sudo hostnamectl set-hostname nodo-db-3
+sudo hostnamectl set-hostname maria1
 sudo nano /etc/hosts
 
     ## Change the following line
 127.0.0.1   localhost
-127.0.1.1   nodo-db-3
+127.0.1.1   maria1
 
 192.168.122.52  backend-1
 192.168.122.53  backend-2
@@ -48,7 +48,7 @@ sudo nano /etc/hosts
 192.168.3.55  redis-1
 192.168.3.56  redis-2
 
-192.168.4.52  nodo-db-1
+192.168.4.52  maria1
 192.168.4.53  nodo-db-2
 192.168.4.54  nodo-db-3
 
@@ -65,3 +65,39 @@ sudo poweroff
 sudo apt update
 sudo apt install mariadb-server -y
 apt install rsync
+
+# configure mariadb
+
+sudo nano /etc/mysql/conf.d/mariadb.cnf
+
+[mysqld]
+query_cache_size=0
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+query_cache_type=0
+bind-address=0.0.0.0
+# Galera Provider Configuration
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+#wsrep_provider_options="gcache.size=32G"
+# Galera Cluster Configuration
+wsrep_cluster_name="ClusterMaria"
+wsrep_cluster_address="gcomm://maria1,maria2,maria3"
+
+# Galera Synchronization Congifuration
+wsrep_sst_method=rsync
+#wsrep_sst_auth=user:pass
+# Galera Node Configuration
+wsrep_node_address="192.168.4.52"
+wsrep_node_name="maria1"
+
+#stop the service
+service mariadb stop
+
+#start the service
+sudo galera_new_cluster
+
+###### MaxScale ######
+sudo su
+mysql

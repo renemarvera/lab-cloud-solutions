@@ -8,7 +8,7 @@ network:
 
     enp1s0:
       dhcp4: no
-      addresses: [192.168.122.83/24]
+      addresses: [192.168.122.81/24]
       routes:
         - to: default
           via: 192.168.122.1
@@ -17,11 +17,11 @@ network:
 
     enp7s0:
       dhcp4: no
-      addresses: [192.168.3.83/24]
+      addresses: [192.168.3.81/24]
 
     enp8s0:
       dhcp4: no
-      addresses: [192.168.4.53/24]
+      addresses: [192.168.4.51/24]
 
 # Apply the network configuration
 sudo netplan apply
@@ -31,12 +31,12 @@ sudo ip link set enp7s0 up
 sudo ip link set enp8s0 up
 
 # Change the hostname
-sudo hostnamectl set-hostname nodo-db-2
+sudo hostnamectl set-hostname maxscale
 sudo nano /etc/hosts
 
     ## Change the following line
 127.0.0.1   localhost
-127.0.1.1   nodo-db-2
+127.0.1.1   maxscale
 
 192.168.122.52  backend-1
 192.168.122.53  backend-2
@@ -48,9 +48,11 @@ sudo nano /etc/hosts
 192.168.3.55  redis-1
 192.168.3.56  redis-2
 
-192.168.4.52  nodo-db-1
-192.168.4.53  nodo-db-2
-192.168.4.54  nodo-db-3
+192.168.4.52  maria1
+192.168.4.53  maria2
+192.168.4.54  maria3
+
+192.168.4.51  maxscale
 
 # shutdown the server
 sudo apt update
@@ -59,9 +61,10 @@ sudo apt-get clean
 sudo apt-get autoremove -y
 sudo poweroff
 
-###### MariaDB ######
+###### MaxScale ######
 
-# Install MariaDB
-sudo apt update
-sudo apt install mariadb-server -y
-apt install rsync
+wget https://dlm.mariadb.com/3776522/MaxScale/24.02.1/packages/ubuntu/jammy/x86_64/maxscale_24.02.1~jammy-1_amd64.deb
+
+sudo apt install libodbc2 ## OBS: This package is required for the installation of MaxScale
+sudo dpkg -i libicu70_70.1-2_amd64.deb ## OBS: This package is required for the installation of MaxScale
+sudo dpkg -i maxscale_24.02.1~jammy-1_amd64.deb
